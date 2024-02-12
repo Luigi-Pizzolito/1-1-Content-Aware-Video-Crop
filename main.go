@@ -2,6 +2,11 @@ package main
 
 import (
 	"fmt"
+    "os"
+    "syscall"
+    "os/signal"
+    // "context"
+    // "time"
 	"github.com/schollz/progressbar/v3"
 )
 
@@ -17,6 +22,8 @@ var (
 )
 
 func main() {
+    catchExit()
+
     inputVideo = "vid/mukuro.mp4"
     outputDir = "out"
     realTime = false
@@ -48,4 +55,15 @@ func main() {
     } else {
         tickPipeline()
     }
+}
+
+func catchExit() {
+    gracefulShutdown := make(chan os.Signal, 1)
+    signal.Notify(gracefulShutdown, syscall.SIGINT, syscall.SIGTERM)
+    go func() {
+        <- gracefulShutdown
+        fmt.Println("\nCaught EXIT")
+        rmTempDirs()
+        os.Exit(1)
+    }()
 }
