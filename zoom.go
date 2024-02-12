@@ -5,9 +5,12 @@ import (
 	"image/color"
 	"image/draw"
 
-	"github.com/nfnt/resize"
+	// "github.com/nfnt/resize"
+	"github.com/bamiaux/rez"
 )
 
+/*
+//! unused, removed
 // ResizeWithVerticalLetterbox resizes the given image while preserving its aspect ratio and adding vertical letterbox bars.
 func ResizeWithVerticalLetterbox(img image.Image, width, height int) *image.RGBA {
 	// Calculate aspect ratios
@@ -56,8 +59,46 @@ func ResizeWithVerticalLetterbox(img image.Image, width, height int) *image.RGBA
 
 	return RemoveAlphaRGBA(dst)
 }
-
+*/
 // ResizeRGBA scales down the given image.RGBA while preserving its aspect ratio.
+//! takes 3.1% of run time, blocking pipeline
+//! reduction to 3.0%
+
+//! Resize call takes: 3.0%
+//! nfnt/resize func1: 6.2%
+//! nfnt/resize func2: 6.3
+//! -> total: 15.5%
+//! --> changing to github.com/bamiaux/rez
+//! Lanczos 3
+//! Resize call takes: 3.73%
+//! bamiaux/rez dispatch: 6.7%
+//! -> total: 10.43%
+//! Lanczos 2
+//! Resize call takes: 2.4%
+//! bamiaux/rez dispatch: 4.2%
+//! -> total: 6.6%
+// func ResizeRGBA(img *image.RGBA, maxWidth, maxHeight int) *image.RGBA {
+// 	// Calculate the scaling factor for width and height
+// 	scaleWidth := float64(maxWidth) / float64(img.Bounds().Dx())
+// 	scaleHeight := float64(maxHeight) / float64(img.Bounds().Dy())
+
+// 	// Use the smaller scaling factor to ensure the entire image fits within the specified dimensions
+// 	scale := scaleWidth
+// 	if scaleHeight < scaleWidth {
+// 		scale = scaleHeight
+// 	}
+
+// 	// Resize the image using the calculated scaling factor
+// 	resizedImg := resize.Resize(uint(float64(img.Bounds().Dx())*scale), uint(float64(img.Bounds().Dy())*scale), img, resize.Lanczos3)
+
+// 	// Create a new RGBA image with the resized dimensions
+// 	resizedRGBA := image.NewRGBA(image.Rect(0, 0, int(resizedImg.Bounds().Dx()), int(resizedImg.Bounds().Dy())))
+
+// 	// Copy the resized image onto the new RGBA image
+// 	draw.Draw(resizedRGBA, resizedRGBA.Bounds(), resizedImg, resizedImg.Bounds().Min, draw.Src)
+
+// 	return RemoveAlphaRGBA(resizedRGBA)
+// }
 func ResizeRGBA(img *image.RGBA, maxWidth, maxHeight int) *image.RGBA {
 	// Calculate the scaling factor for width and height
 	scaleWidth := float64(maxWidth) / float64(img.Bounds().Dx())
@@ -70,32 +111,41 @@ func ResizeRGBA(img *image.RGBA, maxWidth, maxHeight int) *image.RGBA {
 	}
 
 	// Resize the image using the calculated scaling factor
-	resizedImg := resize.Resize(uint(float64(img.Bounds().Dx())*scale), uint(float64(img.Bounds().Dy())*scale), img, resize.Lanczos3)
+	// resizedImg := resize.Resize(uint(float64(img.Bounds().Dx())*scale), uint(float64(img.Bounds().Dy())*scale), img, resize.Lanczos3)
+	resizedImg := image.NewRGBA(image.Rect(0, 0, int(float64(img.Bounds().Dx())*scale), int(float64(img.Bounds().Dy())*scale)))
+	err := rez.Convert(resizedImg, img, rez.NewLanczosFilter(2))
+	if err != nil {
+		panic("Failed to resize img: "+err.Error())
+	}
 
 	// Create a new RGBA image with the resized dimensions
 	resizedRGBA := image.NewRGBA(image.Rect(0, 0, int(resizedImg.Bounds().Dx()), int(resizedImg.Bounds().Dy())))
+	// Fill with black
+	draw.Draw(resizedRGBA, resizedRGBA.Bounds(), &image.Uniform{color.Black}, image.ZP, draw.Src)
 
-	// Copy the resized image onto the new RGBA image
-	draw.Draw(resizedRGBA, resizedRGBA.Bounds(), resizedImg, resizedImg.Bounds().Min, draw.Src)
+	// Copy the resized image onto the new RGBA image, with alpha blending
+	draw.Draw(resizedRGBA, resizedRGBA.Bounds(), resizedImg, resizedImg.Bounds().Min, draw.Over)
 
-	return RemoveAlphaRGBA(resizedRGBA)
+	return resizedRGBA
 }
 
-// RemoveAlphaRGBA removes the alpha channel from an RGBA image and returns a new RGBA image.
-func RemoveAlphaRGBA(rgba *image.RGBA) *image.RGBA {
-	// Create a new RGBA image with the same dimensions as the original image
-	rgb := image.NewRGBA(image.Rect(0, 0, rgba.Bounds().Dx(), rgba.Bounds().Dy()))
+// // RemoveAlphaRGBA removes the alpha channel from an RGBA image and returns a new RGBA image.
+// //! takes 1.5% of run time, blocking pipeline
+// //! eliminated
+// func RemoveAlphaRGBA(rgba *image.RGBA) *image.RGBA {
+// 	// Create a new RGBA image with the same dimensions as the original image
+// 	rgb := image.NewRGBA(image.Rect(0, 0, rgba.Bounds().Dx(), rgba.Bounds().Dy()))
 
-	// Copy RGB values from the original image to the new image while discarding alpha channel
-	for y := rgba.Bounds().Min.Y; y < rgba.Bounds().Max.Y; y++ {
-		for x := rgba.Bounds().Min.X; x < rgba.Bounds().Max.X; x++ {
-			r, g, b, _ := rgba.At(x, y).RGBA()
-			rgb.SetRGBA(x, y, color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), 255})
-		}
-	}
+// 	// Copy RGB values from the original image to the new image while discarding alpha channel
+// 	for y := rgba.Bounds().Min.Y; y < rgba.Bounds().Max.Y; y++ {
+// 		for x := rgba.Bounds().Min.X; x < rgba.Bounds().Max.X; x++ {
+// 			r, g, b, _ := rgba.At(x, y).RGBA()
+// 			rgb.SetRGBA(x, y, color.RGBA{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8), 255})
+// 		}
+// 	}
 
-	return rgb
-}
+// 	return rgb
+// }
 
 // ZoomOutRGBA zooms out the given image.RGBA by a percentage while keeping the same aspect ratio.
 // It fills the background with black.
@@ -105,7 +155,12 @@ func ZoomOutRGBA(img *image.RGBA, percentage float64) *image.RGBA {
 	newHeight := int(float64(img.Bounds().Dy()) * (1 - percentage/100))
 
 	// Resize the image using the calculated dimensions
-	resizedImg := resize.Resize(uint(newWidth), uint(newHeight), img, resize.Lanczos3)
+	// resizedImg := resize.Resize(uint(newWidth), uint(newHeight), img, resize.Lanczos3)
+	resizedImg := image.NewRGBA(image.Rect(0, 0, newWidth, newHeight))
+	err := rez.Convert(resizedImg, img, rez.NewLanczosFilter(2))
+	if err != nil {
+		panic("Failed to resize img: "+err.Error())
+	}
 
 	// Create a new RGBA image with the original dimensions
 	resizedRGBA := image.NewRGBA(image.Rect(0, 0, img.Bounds().Dx(), img.Bounds().Dy()))
@@ -118,7 +173,7 @@ func ZoomOutRGBA(img *image.RGBA, percentage float64) *image.RGBA {
 	draw.Draw(resizedRGBA, resizedRGBA.Bounds(), &image.Uniform{color.Black}, image.ZP, draw.Src)
 
 	// Draw the resized image onto the new RGBA image
-	draw.Draw(resizedRGBA, image.Rect(x, y, x+newWidth, y+newHeight), resizedImg, resizedImg.Bounds().Min, draw.Src)
+	draw.Draw(resizedRGBA, image.Rect(x, y, x+newWidth, y+newHeight), resizedImg, resizedImg.Bounds().Min, draw.Over)
 
 	return resizedRGBA
 }

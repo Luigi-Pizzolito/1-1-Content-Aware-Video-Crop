@@ -35,6 +35,8 @@ func CalculateWidthHeight(height int) (width, newHeight int) {
 }
 
 // copyAndWrite copies the image.RGBA and passes it to a video writer.
+//! takes 5.2% of run time
+//! does not block requests if pipe would have a buffer, hm
 func copyAndWrite(img *image.RGBA) {
 	// Copy the image.RGBA to a new image.RGBA
 	copiedImg := image.NewRGBA(image.Rect(0, 0, img.Bounds().Dx(), img.Bounds().Dy()))
