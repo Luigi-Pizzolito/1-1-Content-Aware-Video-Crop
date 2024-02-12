@@ -5,7 +5,7 @@ This tool is designed to crop videos into a square format optimized for hologram
 <details open>
 <summary>Sample Output</summary>
 
-![vidout3](https://github.com/Luigi-Pizzolito/1-1-Content-Aware-Video-Crop/assets/27804554/e3e42d7a-b630-40aa-85e8-04b732b6dbe0)
+<p align="center"><img src="https://github.com/Luigi-Pizzolito/1-1-Content-Aware-Video-Crop/assets/27804554/e3e42d7a-b630-40aa-85e8-04b732b6dbe0" /></p>
 
 </details>
 
@@ -30,7 +30,7 @@ The tool accepts the following command-line flags:
 go run . -i input.mp4 -o output_dir -s 256 --ui --rt
 ```
 
-![show](https://github.com/Luigi-Pizzolito/1-1-Content-Aware-Video-Crop/assets/27804554/fb044c77-3723-46e8-8f88-102468bfb0f5)
+<p align="center"><img src="https://github.com/Luigi-Pizzolito/1-1-Content-Aware-Video-Crop/assets/27804554/66e59639-8e72-48c8-8b87-4f48f0f1a3a4" /></p>
 </details>
 
 
@@ -41,7 +41,7 @@ go run . -i input.mp4 -o output_dir -s 256 --ui --rt
 go run . -i input.mp4 -s 256 --play
 ```
 
-![play](https://github.com/Luigi-Pizzolito/1-1-Content-Aware-Video-Crop/assets/27804554/01ca8b2d-2d0f-4bde-99d9-b72e7d8e6421)
+<p align="center"><img src="https://github.com/Luigi-Pizzolito/1-1-Content-Aware-Video-Crop/assets/27804554/e3e42d7a-b630-40aa-85e8-04b732b6dbe0" /></p>
 </details>
 
 
@@ -49,10 +49,10 @@ go run . -i input.mp4 -s 256 --play
 <summary>Headless Mode (default)</summary>
 
 ```bash
-go run . -i input.mp4 -o output_dir -s 256
+go run . -i input.mp4 -o output_dir-s 256
 ```
 
-![cmd](https://github.com/Luigi-Pizzolito/1-1-Content-Aware-Video-Crop/assets/27804554/a5ee6b02-2740-4388-88af-154af6f8a682)
+<p align="center"><img src="https://github.com/Luigi-Pizzolito/1-1-Content-Aware-Video-Crop/assets/27804554/a5ee6b02-2740-4388-88af-154af6f8a682" /></p>
 </details>
 
 
