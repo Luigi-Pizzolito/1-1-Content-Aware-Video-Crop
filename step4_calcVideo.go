@@ -103,7 +103,7 @@ func calcVideo() {
             ppan = int(pid.delta)
             pzoom = 100-posF(perOut-100)
         
-            if drawUI {
+            if drawUI && !playOnlyMode {
 				calcFrameRW.Lock()
 				calcFrame = calcImg
 				calcFrameRW.Unlock()

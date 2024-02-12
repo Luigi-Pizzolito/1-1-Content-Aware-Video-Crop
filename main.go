@@ -19,12 +19,14 @@ var (
     inputVideos     []string	
     realTime        bool
     drawUI          bool
+    playOnlyMode    bool
 
     bar             *progressbar.ProgressBar
 )
 
 func parseFlags() {
     // Define flags
+    playOnlyModeF := flag.Bool("play", false, "Player only mode, do not write output")
 	drawUIF := flag.Bool("ui", false, "Whether to draw UI")
 	realTimeF := flag.Bool("rt", false, "Whether to run in real-time")
 	squareSizeF := flag.Int("s", 256, "Size of square output video")
@@ -45,19 +47,23 @@ func parseFlags() {
 		}
 	} else {
         // make output folder if it doesn't exist
-        _, err := os.Stat(outputDirF)
-        if os.IsNotExist(err) {
-            // Create the directory and its parents if they don't exist
-            err := os.MkdirAll(outputDirF, os.ModePerm)
-            if err != nil {
-                panic("Error creating output directory: "+err.Error())
+        if !*playOnlyModeF {
+            _, err := os.Stat(outputDirF)
+            if os.IsNotExist(err) {
+                // Create the directory and its parents if they don't exist
+                err := os.MkdirAll(outputDirF, os.ModePerm)
+                if err != nil {
+                    panic("Error creating output directory: "+err.Error())
+                }
             }
         }
     }
-    var err error
-    outputDirF, err = convertToAbsolutePath(outputDirF)
-    if err != nil {
-        panic("Error getting absolute path of output folder: "+err.Error())
+    if !*playOnlyModeF {
+        var err error
+        outputDirF, err = convertToAbsolutePath(outputDirF)
+        if err != nil {
+            panic("Error getting absolute path of output folder: "+err.Error())
+        }
     }
 
     // Process folder input instead of single video
@@ -77,20 +83,39 @@ func parseFlags() {
     }
 
     // Override Logic
-    if !drawUI {
-        realTime = false
+    if !*drawUIF {
+        // if not drawing UI, cannot be real-time proccesed
+        *realTimeF = false
+    }
+    if *playOnlyModeF {
+        // if player only mode, must draw ui and real-time
+        *realTimeF = true
+        *drawUIF = true
     }
 
 
 	// Print parsed flags
     fmt.Println("1:1 Content-Aware Video Cropper V1.0")
 	fmt.Println("Parameters:")
-	fmt.Printf("\tDraw UI: %v\n", *drawUIF)
-	fmt.Printf("\tReal-time: %v\n", *realTimeF)
-	fmt.Printf("\tSquare Size: %d\n", *squareSizeF)
-	fmt.Printf("\tOutput Directory: %s\n", outputDirF)
-	fmt.Printf("\tInput Video(s): %v\n", files)
+    if *playOnlyModeF {
+        fmt.Println("\tMode: Player-Only")
+        fmt.Printf("\tInput Video(s): %v\n", files)
+        fmt.Printf("\tSquare Size: %d\n", *squareSizeF)
+    } else {
+        if *drawUIF {
+            fmt.Println("\tMode: Show Algorithm")
+            fmt.Printf("\tReal-time: %v\n", *realTimeF)
+        } else {
+            fmt.Println("\tMode: Proccess")
+        }
+        // fmt.Printf("\tDraw UI: %v\n", *drawUIF)
+        fmt.Printf("\tInput Video(s): %v\n", files)
+        fmt.Printf("\tOutput Directory: %s\n", outputDirF)
+        fmt.Printf("\tSquare Size: %d\n", *squareSizeF)
+    }
+	
 
+    playOnlyMode = *playOnlyModeF
     drawUI = *drawUIF
     realTime = *realTimeF
     squareSize = *squareSizeF

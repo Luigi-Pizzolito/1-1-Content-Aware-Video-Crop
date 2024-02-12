@@ -50,7 +50,7 @@ func readVideo() {
     for video.Read() {
         startTime := time.Now()
 
-		if drawUI {
+		if drawUI && !playOnlyMode {
 			inputFrameRW.Lock()
 			inputFrame = vbuffer
 			inputFrameRW.Unlock()

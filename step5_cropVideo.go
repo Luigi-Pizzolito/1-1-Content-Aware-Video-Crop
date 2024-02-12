@@ -31,7 +31,10 @@ func cropVideo() {
                 croppedFrame = croppedImg
                 croppedFrameRW.Unlock()
             }
-	        copyAndWrite(croppedImg)
+
+            if !playOnlyMode {
+	            copyAndWrite(croppedImg)
+            }
         }
     }
 }

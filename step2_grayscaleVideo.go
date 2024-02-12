@@ -18,7 +18,7 @@ func grayscaleVideo() {
 
             // Process the received image
 			maskFrame := convertToMonochrome(img)
-            if drawUI {
+            if drawUI && !playOnlyMode {
                 grayFrameRW.Lock()
                 grayFrame = convertGrayToRGBA(maskFrame)
                 grayFrameRW.Unlock()

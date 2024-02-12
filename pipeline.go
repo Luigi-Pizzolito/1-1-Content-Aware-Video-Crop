@@ -87,7 +87,9 @@ func startPipeline() {
 	video, _ := vidio.NewVideo(filepath.Join(tempDirTinyVid,getBasenameWithoutExt(inputVideo)+".mp4"))
     tframes = video.Frames()
     cframes = 0
-    bar = progressbar.Default(int64(tframes))
+    if !playOnlyMode {
+		bar = progressbar.Default(int64(tframes))
+	}
 	video.Close()
 
 	go readVideo()
@@ -99,13 +101,18 @@ func startPipeline() {
 
 func checkPipelineDone() bool {
     if cframes == tframes {
-		bar.Clear()
-        bar.Close()
+		if !playOnlyMode {
+			bar.Clear()
+			bar.Close()
+		}
 		close(procFrameQueue1)
 		close(procFrameQueue2)
 		close(procFrameQueue3)
 		close(procFrameQueue4)
-        joinOutputImgs()
+        if !playOnlyMode {
+			// Last step to make video file from image sequence
+			joinOutputImgs()
+		}
         return true
     }
     return false

@@ -6,7 +6,7 @@ import (
 )
 
 func drawRectangleOutline(img *image.RGBA, rect image.Rectangle, outlineColor color.RGBA, width int) {
-    if drawUI {
+    if drawUI && !playOnlyMode {
         // Draw top edge
         drawLine(img, rect.Min.X, rect.Min.Y, rect.Max.X, rect.Min.Y, outlineColor, width)
         // Draw bottom edge
@@ -19,7 +19,7 @@ func drawRectangleOutline(img *image.RGBA, rect image.Rectangle, outlineColor co
 }
 
 func drawLine(img *image.RGBA, x0, y0, x1, y1 int, color color.RGBA, width int) {
-    if drawUI {
+    if drawUI && !playOnlyMode {
         // Bresenham's line algorithm to draw the line
         dx := abs(x1 - x0)
         dy := -abs(y1 - y0)
@@ -57,7 +57,7 @@ func drawLine(img *image.RGBA, x0, y0, x1, y1 int, color color.RGBA, width int) 
 }
 
 func drawPoint(img *image.RGBA, p image.Point, color color.RGBA, radius int) {
-    if drawUI {
+    if drawUI && !playOnlyMode {
         x, y := p.X, p.Y
         for i := x - radius; i <= x+radius; i++ {
             for j := y - radius; j <= y+radius; j++ {

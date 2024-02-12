@@ -63,7 +63,7 @@ func binaryVideo() {
             
 
 
-            if drawUI {
+            if drawUI && !playOnlyMode {
 				binaryFrameRW.Lock()
 				binaryFrame = binaryFrameM
 				binaryFrameRW.Unlock()
