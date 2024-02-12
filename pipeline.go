@@ -1,0 +1,120 @@
+package main
+
+import (
+	"image"
+	"image/color"
+	"image/draw"
+	"sync"
+	"time"
+	"path/filepath"
+	"github.com/schollz/progressbar/v3"
+	"github.com/AlexEidt/Vidio"
+)
+
+var (
+	inputFrame 		*image.RGBA
+	inputFrameRW 	sync.Mutex
+
+	procFrameQueue1	chan *image.RGBA
+
+	grayFrame		*image.RGBA
+	grayFrameRW		sync.Mutex
+
+	procFrameQueue2	chan *ImageGrayMask
+
+	binaryFrame		*image.RGBA
+	binaryFrameRW	sync.Mutex
+
+	procFrameQueue3	chan *ImageGrayBoundMask
+
+	calcFrame		*image.RGBA
+	calcFrameRW		sync.Mutex
+
+	procFrameQueue4	chan *ImageCropMask
+
+	croppedFrame	*image.RGBA
+	croppedFrameRW	sync.Mutex
+
+
+	tempDirTinyVid  string
+    tempDirFrames   string
+)
+
+type ImageGrayMask struct {
+    Mask	*image.Gray
+    Image	*image.RGBA
+}
+
+type ImageGrayBoundMask struct {
+    Mask    *image.Gray
+    Image   *image.RGBA
+    Bbox    image.Rectangle
+    Subj    int
+}
+
+type ImageCropMask struct {
+	CBox	image.Rectangle
+	Image	*image.RGBA
+    zoom    bool
+}
+
+func establishPipesAndImgs() {
+	inputFrame = image.NewRGBA(image.Rect(0, 0, screenWidth, squareSize))
+	draw.Draw(inputFrame, inputFrame.Bounds(), &image.Uniform{color.RGBA{255,0,255,255}}, image.ZP, draw.Src)
+	
+	procFrameQueue1 = make(chan *image.RGBA)
+
+	grayFrame = image.NewRGBA(image.Rect(0, 0, screenWidth, squareSize))
+	draw.Draw(grayFrame, grayFrame.Bounds(), &image.Uniform{color.RGBA{255,0,0,255}}, image.ZP, draw.Src)
+	
+	procFrameQueue2 = make(chan *ImageGrayMask)
+
+	binaryFrame = image.NewRGBA(image.Rect(0, 0, screenWidth, squareSize))
+	draw.Draw(binaryFrame, binaryFrame.Bounds(), &image.Uniform{color.RGBA{0,255,0,255}}, image.ZP, draw.Src)
+
+	procFrameQueue3 = make(chan *ImageGrayBoundMask)
+
+	calcFrame = image.NewRGBA(image.Rect(0, 0, screenWidth, squareSize))
+	draw.Draw(calcFrame, calcFrame.Bounds(), &image.Uniform{color.RGBA{0,0,255,255}}, image.ZP, draw.Src)
+
+	procFrameQueue4 = make(chan *ImageCropMask)
+
+	croppedFrame = image.NewRGBA(image.Rect(0, 0, squareSize, squareSize))
+	draw.Draw(croppedFrame, croppedFrame.Bounds(), &image.Uniform{color.RGBA{0,255,255,255}}, image.ZP, draw.Src)
+}
+
+func startPipeline() {
+	video, _ := vidio.NewVideo(filepath.Join(tempDirTinyVid,getBasenameWithoutExt(inputVideo)+".mp4"))
+    tframes = video.Frames()
+    cframes = 0
+    bar = progressbar.Default(int64(tframes))
+	video.Close()
+	
+	go readVideo()
+	go grayscaleVideo()
+	go binaryVideo()
+	go calcVideo()
+	go cropVideo()
+}
+
+func checkPipelineDone() bool {
+    if cframes == tframes {
+        bar.Close()
+        close(procFrameQueue1)
+        close(procFrameQueue2)
+        close(procFrameQueue3)
+        close(procFrameQueue4)
+        joinOutputImgs()
+        return true
+    }
+    return false
+}
+
+func tickPipeline() {
+    for {
+        if checkPipelineDone() {
+            break
+        }
+        time.Sleep(time.Millisecond*16)
+    }
+}
