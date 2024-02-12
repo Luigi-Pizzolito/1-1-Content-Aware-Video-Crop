@@ -99,6 +99,8 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {
 
 func runUI() {
 	if err := ebiten.RunGameWithOptions(&Game{}, &ebiten.RunGameOptions{ScreenTransparent: true}); err != nil {
-		panic(err)
+		fmt.Println(err.Error())
+		selfExit()
+		return
 	}
 }

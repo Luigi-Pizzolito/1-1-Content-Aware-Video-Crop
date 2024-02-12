@@ -37,25 +37,33 @@ func cleanPathsAndTempDir() {
 	var err error
     inputVideo, err = convertToAbsolutePath(inputVideo)
     if err != nil {
-        panic("Couldn't find absolute path of input video")
+        fmt.Println("Couldn't find absolute path of input video")
+		selfExit()
+		return
     }
     
 
     outputDir, err = convertToAbsolutePath(outputDir)
     if err != nil {
-        panic("Couldn't find absolute path of output directory")
+        fmt.Println("Couldn't find absolute path of output directory")
+		selfExit()
+		return
     }
 
 	// Create a temporary directory for frames
     tempDirFrames, err = ioutil.TempDir("", "tinyframes")
     if err != nil {
-        panic(err)
+        fmt.Println(err.Error())
+		selfExit()
+		return
     }
 
 	// Create a temporary directory for tiny video
     tempDirTinyVid, err = ioutil.TempDir("", "tinyvideo")
     if err != nil {
-        panic(err)
+        fmt.Println(err.Error())
+		selfExit()
+		return
     }
 }
 

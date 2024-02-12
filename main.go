@@ -43,7 +43,9 @@ func parseFlags() {
 		var err error
 		outputDirF, err = os.Getwd()
 		if err != nil {
-			panic("Error getting current working directory: "+err.Error())
+			fmt.Println("Error getting current working directory: "+err.Error())
+            selfExit()
+            return
 		}
 	} else {
         // make output folder if it doesn't exist
@@ -53,7 +55,9 @@ func parseFlags() {
                 // Create the directory and its parents if they don't exist
                 err := os.MkdirAll(outputDirF, os.ModePerm)
                 if err != nil {
-                    panic("Error creating output directory: "+err.Error())
+                    fmt.Println("Error creating output directory: "+err.Error())
+                    selfExit()
+                    return
                 }
             }
         }
@@ -62,15 +66,23 @@ func parseFlags() {
         var err error
         outputDirF, err = convertToAbsolutePath(outputDirF)
         if err != nil {
-            panic("Error getting absolute path of output folder: "+err.Error())
+            fmt.Println("Error getting absolute path of output folder: "+err.Error())
+            selfExit()
+            return
         }
     }
 
     // Process folder input instead of single video
+    if inputVideosF == "" {
+        fmt.Println("Error: no input video/directory specified with -i.")
+        selfExit()
+        return
+    }
     files, isFolder, err := getFilesInPath(inputVideosF)
 	if err != nil {
 		fmt.Println("Error:", err)
-		return
+		selfExit()
+        return
 	}
     if !isFolder {
         files = []string{}
@@ -123,7 +135,9 @@ func parseFlags() {
     for _, video := range files {
         video, err := convertToAbsolutePath(video)
         if err != nil {
-            panic("Error getting absolute path of input video: "+err.Error())
+            fmt.Println("Error getting absolute path of input video: "+err.Error())
+            selfExit()
+            return
         }
         inputVideos = append(inputVideos, video)
     }
@@ -178,4 +192,8 @@ func catchExit() {
         rmTempDirs()
         os.Exit(1)
     }()
+}
+
+func selfExit() {
+    syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 }
