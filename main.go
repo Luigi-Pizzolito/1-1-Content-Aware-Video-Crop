@@ -26,14 +26,14 @@ var (
 
 func parseFlags() {
     // Define flags
-    playOnlyModeF := flag.Bool("play", false, "Player only mode, do not write output")
-	drawUIF := flag.Bool("ui", false, "Whether to draw UI")
-	realTimeF := flag.Bool("rt", false, "Whether to run in real-time")
+    playOnlyModeF := flag.Bool("play", false, "Player only mode, do not write output. Just displays a preview of the result. (default false)")
+	drawUIF := flag.Bool("ui", false, "Whether to draw UI (default false)")
+	realTimeF := flag.Bool("rt", false, "Whether to run in real-time (default false)")
 	squareSizeF := flag.Int("s", 256, "Size of square output video")
 	var outputDirF string
-	flag.StringVar(&outputDirF, "o", "", "Output directory (default is current directory)")
+	flag.StringVar(&outputDirF, "o", "", "Output directory (default current directory)")
     var inputVideosF string
-	flag.StringVar(&inputVideosF, "i", "", "Input video or directory")
+	flag.StringVar(&inputVideosF, "i", "", "Input video or directory. Required.")
 
     // Parse flags()
     flag.Parse()
