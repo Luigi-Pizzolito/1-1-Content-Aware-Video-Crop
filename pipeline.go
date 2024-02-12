@@ -89,7 +89,7 @@ func startPipeline() {
     cframes = 0
     bar = progressbar.Default(int64(tframes))
 	video.Close()
-	
+
 	go readVideo()
 	go grayscaleVideo()
 	go binaryVideo()
@@ -99,11 +99,12 @@ func startPipeline() {
 
 func checkPipelineDone() bool {
     if cframes == tframes {
+		bar.Clear()
         bar.Close()
-        close(procFrameQueue1)
-        close(procFrameQueue2)
-        close(procFrameQueue3)
-        close(procFrameQueue4)
+		close(procFrameQueue1)
+		close(procFrameQueue2)
+		close(procFrameQueue3)
+		close(procFrameQueue4)
         joinOutputImgs()
         return true
     }

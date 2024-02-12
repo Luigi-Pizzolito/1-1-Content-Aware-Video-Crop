@@ -19,10 +19,13 @@ var (
     subj            int
     tframes         int
     cframes         int
+
+	termUI			bool
 )
 
 func setupUI() {
 	screenHeight = screenHeight*steps
+	termUI = false
 
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("1:1 Content-Aware Video Crop")
@@ -34,7 +37,7 @@ type Game struct {
 
 func (g *Game) Update() error {
 	// called every tick
-    if checkPipelineDone() {
+    if termUI {
         return ebiten.Termination
     }
     return nil
@@ -69,7 +72,7 @@ func (g *Game) Draw(screen *ebiten.Image) {
 	screen.DrawImage(ebiten.NewImageFromImage(croppedFrame), op4)
 	croppedFrameRW.Unlock()
 
-	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f\nFPS: %0.2f\nPan: %dpx\nZoom: %.2f%%\nSubj: %d\nProg: %.2f%%", ebiten.ActualTPS(), ebiten.ActualFPS(), ppan, pzoom, subj, float64(float64(cframes)/float64(tframes))*100))
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS: %0.2f\nPan: %dpx\nZoom: %.2f%%\nSubj: %d\nProg: %.2f%%", ebiten.ActualFPS(), ppan, pzoom, subj, float64(float64(cframes)/float64(tframes))*100))
 }
 
 func (g *Game) Layout(outsideWidth, outsideHeight int) (int, int) {

@@ -126,6 +126,7 @@ func convertImagesToMP4(inputFolder, audioFile, outputFile string, fps float64) 
 		return err
 	}
 
+	barp.Clear()
     barp.Close()
 	return nil
 }
@@ -183,6 +184,7 @@ func resizeTiny(inputFile, outputFile string, width, height int) error {
 		return err
 	}
 
+	barp.Clear()
     barp.Close()
 	return nil
 }

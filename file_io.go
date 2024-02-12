@@ -64,3 +64,26 @@ func rmTempDirs() {
 	os.RemoveAll(tempDirFrames)
     os.RemoveAll(tempDirTinyVid)
 }
+
+func getFilesInPath(path string) ([]string, bool, error) {
+	fileInfo, err := os.Stat(path)
+	if err != nil {
+		return nil, false, err
+	}
+
+	if fileInfo.IsDir() {
+		files, err := ioutil.ReadDir(path)
+		if err != nil {
+			return nil, true, err
+		}
+
+		var fileNames []string
+		for _, file := range files {
+			fileNames = append(fileNames, file.Name())
+		}
+
+		return fileNames, true, nil
+	}
+
+	return nil, false, nil
+}

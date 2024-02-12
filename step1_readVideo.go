@@ -16,7 +16,7 @@ var (
 // ---------------- Step Function ----------------
 
 func initalResize() {
-	fmt.Println("Initial resize to", screenWidth, "x", squareSize, "px...")
+	fmt.Printf("Initial resize to %dx%dpx\n", screenWidth, squareSize)
     err := resizeTiny(inputVideo, filepath.Join(tempDirTinyVid,getBasenameWithoutExt(inputVideo)+".mp4"), screenWidth, squareSize)
     if err != nil {
         fmt.Println("Error:", err)
