@@ -128,6 +128,13 @@ func convertImagesToMP4(inputFolder, audioFile, outputFile string, fps float64) 
 
 	barp.Clear()
     barp.Close()
+
+	//! Must clear output folder image sequence after, or it might get appended to other videos being processed
+	err = deleteFilesInFolder(inputFolder)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

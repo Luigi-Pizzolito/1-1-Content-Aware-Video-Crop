@@ -87,3 +87,23 @@ func getFilesInPath(path string) ([]string, bool, error) {
 
 	return nil, false, nil
 }
+
+func deleteFilesInFolder(folderPath string) error {
+	err := filepath.Walk(folderPath, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !info.IsDir() {
+			err := os.Remove(path)
+			if err != nil {
+				return err
+			}
+			// fmt.Printf("Deleted file: %s\n", path)
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}
