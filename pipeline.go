@@ -62,22 +62,22 @@ func establishPipesAndImgs() {
 	inputFrame = image.NewRGBA(image.Rect(0, 0, screenWidth, squareSize))
 	draw.Draw(inputFrame, inputFrame.Bounds(), &image.Uniform{color.RGBA{255,0,255,255}}, image.ZP, draw.Src)
 	
-	procFrameQueue1 = make(chan *image.RGBA, 1000)
+	procFrameQueue1 = make(chan *image.RGBA)
 
 	grayFrame = image.NewRGBA(image.Rect(0, 0, screenWidth, squareSize))
 	draw.Draw(grayFrame, grayFrame.Bounds(), &image.Uniform{color.RGBA{255,0,0,255}}, image.ZP, draw.Src)
 	
-	procFrameQueue2 = make(chan *ImageGrayMask, 500)
+	procFrameQueue2 = make(chan *ImageGrayMask)
 
 	binaryFrame = image.NewRGBA(image.Rect(0, 0, screenWidth, squareSize))
 	draw.Draw(binaryFrame, binaryFrame.Bounds(), &image.Uniform{color.RGBA{0,255,0,255}}, image.ZP, draw.Src)
 
-	procFrameQueue3 = make(chan *ImageGrayBoundMask, 4)
+	procFrameQueue3 = make(chan *ImageGrayBoundMask)
 
 	calcFrame = image.NewRGBA(image.Rect(0, 0, screenWidth, squareSize))
 	draw.Draw(calcFrame, calcFrame.Bounds(), &image.Uniform{color.RGBA{0,0,255,255}}, image.ZP, draw.Src)
 
-	procFrameQueue4 = make(chan *ImageCropMask, 100)
+	procFrameQueue4 = make(chan *ImageCropMask)
 
 	croppedFrame = image.NewRGBA(image.Rect(0, 0, squareSize, squareSize))
 	draw.Draw(croppedFrame, croppedFrame.Bounds(), &image.Uniform{color.RGBA{0,255,255,255}}, image.ZP, draw.Src)
