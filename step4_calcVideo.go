@@ -28,16 +28,8 @@ func calcVideo() {
             }
 
             // Process the received image
-			// bbox := findBoundingBox(mask.Mask)
             bbox := mask.Bbox
-            var centroid image.Point
-            // if mask.Subj > 1 {
-                // Multi subject, center is more balanced
-                // centroid = CenterPoint(bbox)
-            // } else {
-                // Single subject, centroid is more balanced
-                centroid = calculateCentroid(mask.Mask, bbox)
-            // }
+            centroid := calculateCentroid(mask.Mask, bbox)
             
 			panAdj := calculatePanAdjustment(centroid,mask.Image.Bounds().Dx())
 			bboxArea := bbox.Dx()*bbox.Dy()
@@ -63,20 +55,14 @@ func calcVideo() {
             difOut := minBoxHDist(bbox, cropRect) //bbox.Dx()-cropRect.Dx()
             difOut = clamp(difOut+padding, 0, cropRect.Dx()*5)
             zoompx := 0
-            targetCropRect := cropRect
             zoompx = difOut
             pidz.SetSetpoint(float64(zoompx))
             smoothedZoomAdj := pidz.Update()
             pidz.SetDelta(pidz.delta+smoothedZoomAdj)
-            // if perOut > 90 {
-                // fmt.Println(zoompx, int(pidz.delta), int(smoothedZoomAdj))
-                targetCropRect = ExpandRectangle(cropRect,clamp(zoompx, 0, cropRect.Dx()*5))
-                cropRect = ExpandRectangle(cropRect, clamp(int(pidz.delta), 0, cropRect.Dx()*5))
-                zoom = true
-            // }
-            // zoom = true //! test
-            // fmt.Println(perOut, difOut)
-            //----
+            
+            // Zoom
+            cropRect = ExpandRectangle(cropRect, clamp(int(pidz.delta), 0, cropRect.Dx()*5))
+            zoom = true
 
             
 			var calcImg *image.RGBA
@@ -93,13 +79,12 @@ func calcVideo() {
 				drawLine(calcImg, centroid.X, 0, centroid.X, mask.Image.Bounds().Dy(), color.RGBA{255,0,0,255}, 1)
 
 				if zoom {
+                    targetCropRect := ExpandRectangle(cropRect,clamp(zoompx, 0, cropRect.Dx()*5))
 					drawRectangleOutline(calcImg, targetCropRect, color.RGBA{255,255,0,255}, 1)
-					// fmt.Println(posF(perOut-100))
-					calcImg = ZoomOutRGBA(calcImg, posF(perOut-100)) //clampF(100-posF(perOut)
+					calcImg = ZoomOutRGBA(calcImg, posF(perOut-100))
 				}
 			}
 
-            // fmt.Printf("Pan: %d, Zoom: %.2f\n", int(pid.delta), 100-posF(perOut-100))
             ppan = int(pid.delta)
             pzoom = 100-posF(perOut-100)
         

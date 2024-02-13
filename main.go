@@ -9,12 +9,6 @@ import (
     "path/filepath"
     
 	"github.com/schollz/progressbar/v3"
-
-    //! profiler deps
-    _ "net/http/pprof"
-	"github.com/felixge/fgprof"
-    "net/http"
-    "log"
 )
 
 var (
@@ -150,12 +144,6 @@ func parseFlags() {
 }
 
 func main() {
-    //! profiler insert
-    http.DefaultServeMux.Handle("/debug/fgprof", fgprof.Handler())
-	go func() {
-		log.Println(http.ListenAndServe(":6060", nil))
-	}()
-
     catchExit()
 
     parseFlags()

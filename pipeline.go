@@ -9,9 +9,6 @@ import (
 	"path/filepath"
 	"github.com/schollz/progressbar/v3"
 	"github.com/AlexEidt/Vidio"
-
-	//! profiling depps
-	"fmt"
 )
 
 var (
@@ -61,40 +58,6 @@ type ImageCropMask struct {
     zoom    bool
 }
 
-//! Adding capacity/bufffer to channels
-//! Idle before:
-//! -- readVideo: 7.7%
-//! -- grayVideo: 4.4%
-//! -- binaVideo: 0.3%
-//! -- calcVideo: 7.9%
-//! -- cropVideo: 1.4%
-//! --> total:	  21.7% pipeline Idle
-//! Idle after:
-//! -- readVideo: 7.8%
-//! -- grayVideo: 3.9%
-//! -- binaVideo: 0.0%
-//! -- calcVideo: 7.6%
-//! -- cropVideo: 0.4%
-//! --> total:	  19.7% pipeline Idle
-//! Idle after:
-//! -- readVideo: 7.8%
-//! -- grayVideo: 4.0%
-//! -- binaVideo: 0.0%
-//! -- calcVideo: 7.7%
-//! -- cropVideo: 0.5%
-//! --> total:	  20% pipeline Idle
-
-//! channel capacity monitoring for profiling
-func monitorChan[T any](ch chan T, name string) {
-	chanMonitorInterval := time.Second
-    for {
-        // if len(ch) == cap(ch) {
-            fmt.Printf("Channel: %s, Size: %d\n", name, len(ch))
-        // }
-        time.Sleep(chanMonitorInterval)
-    }
-}
-
 func establishPipesAndImgs() {
 	inputFrame = image.NewRGBA(image.Rect(0, 0, screenWidth, squareSize))
 	draw.Draw(inputFrame, inputFrame.Bounds(), &image.Uniform{color.RGBA{255,0,255,255}}, image.ZP, draw.Src)
@@ -118,12 +81,6 @@ func establishPipesAndImgs() {
 
 	croppedFrame = image.NewRGBA(image.Rect(0, 0, squareSize, squareSize))
 	draw.Draw(croppedFrame, croppedFrame.Bounds(), &image.Uniform{color.RGBA{0,255,255,255}}, image.ZP, draw.Src)
-
-	//! channel capacity monitoring for profiling
-	// go monitorChan(procFrameQueue1, "read->gray")
-	// go monitorChan(procFrameQueue2, "gray->bin")
-	// go monitorChan(procFrameQueue3, "bin->calc")
-	// go monitorChan(procFrameQueue4, "calc->crop")
 }
 
 func startPipeline() {

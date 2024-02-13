@@ -209,8 +209,7 @@ func connectedComponentLabeling(binaryMap *image.Gray) (map[int]image.Rectangle,
 		labelMatrix[i] = make([]int, binaryMap.Bounds().Dx())
 	}
 
-	var boundingBoxes map[int]image.Rectangle
-	boundingBoxes = make(map[int]image.Rectangle)
+	boundingBoxes := make(map[int]image.Rectangle)
 
 	label := 1
 	for y := binaryMap.Bounds().Min.Y; y < binaryMap.Bounds().Max.Y; y++ {
@@ -227,47 +226,6 @@ func connectedComponentLabeling(binaryMap *image.Gray) (map[int]image.Rectangle,
 }
 
 // Depth-first search to label connected components
-//! takes 3.2% of runtime, blocking other pipelines
-//! 2.9% --> 2.6%
-// func dfs(binaryMap *image.Gray, labelMatrix [][]int, x, y, label int) image.Rectangle {
-// 	minX, minY, maxX, maxY := x, y, x, y
-
-// 	stack := []image.Point{{x, y}}
-// 	for len(stack) > 0 {
-// 		current := stack[len(stack)-1]
-// 		stack = stack[:len(stack)-1]
-
-// 		cx, cy := current.X, current.Y
-// 		labelMatrix[cy][cx] = label
-
-// 		if cx < minX {
-// 			minX = cx
-// 		}
-// 		if cx > maxX {
-// 			maxX = cx
-// 		}
-// 		if cy < minY {
-// 			minY = cy
-// 		}
-// 		if cy > maxY {
-// 			maxY = cy
-// 		}
-
-// 		// Check neighboring pixels
-// 		for dy := -1; dy <= 1; dy++ {
-// 			for dx := -1; dx <= 1; dx++ {
-// 				nx, ny := cx+dx, cy+dy
-// 				if nx >= 0 && nx < binaryMap.Bounds().Dx() && ny >= 0 && ny < binaryMap.Bounds().Dy() {
-// 					if binaryMap.GrayAt(nx, ny).Y > 0 && labelMatrix[ny][nx] == 0 {
-// 						stack = append(stack, image.Point{nx, ny})
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	return image.Rect(minX, minY, maxX+1, maxY+1)
-// }
 func dfs(binaryMap *image.Gray, labelMatrix [][]int, x, y, label int) image.Rectangle {
     minX, minY, maxX, maxY := x, y, x, y
 
