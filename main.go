@@ -15,6 +15,7 @@ var (
 	// input parameters
 	squareSize   int
 	widthSize    int
+	frTarget     float64
 	inputVideo   string
 	outputDir    string
 	inputVideos  []string
@@ -32,6 +33,7 @@ func parseFlags() {
 	realTimeF := flag.Bool("rt", false, "Whether to run in real-time (default false)")
 	squareSizeF := flag.Int("s", 256, "Size of square output video")
 	widthSizeF := flag.Int("w", 0, "Width of output video (default square size)")
+	frTargetF := flag.Float64("fr", 0.0, "Target frame rate of output video (default same as input)")
 	var outputDirF string
 	flag.StringVar(&outputDirF, "o", "", "Output directory (default current directory)")
 	var inputVideosF string
@@ -123,6 +125,7 @@ func parseFlags() {
 		// fmt.Printf("\tDraw UI: %v\n", *drawUIF)
 	}
 	fmt.Printf("\tInput Video(s): %v\n", files)
+	fmt.Printf("\tOutput Frame Rate: %.2f\n", *frTargetF)
 	fmt.Printf("\tSquare Size: %d\n", *squareSizeF)
 	if *widthSizeF != 0 {
 		fmt.Printf("\tWidth Size: %d\n", *widthSizeF)
@@ -133,6 +136,7 @@ func parseFlags() {
 	realTime = *realTimeF
 	squareSize = *squareSizeF
 	widthSize = *widthSizeF
+	frTarget = *frTargetF
 	outputDir = outputDirF
 	for _, video := range files {
 		video, err := convertToAbsolutePath(video)

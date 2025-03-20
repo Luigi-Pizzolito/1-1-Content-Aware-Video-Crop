@@ -73,8 +73,8 @@ func joinOutputImgs() {
 
 func convertImagesToMP4(inputFolder, audioFile, outputFile string, fps float64) error {
 	cmd := exec.Command("ffmpeg",
-		"-r", strconv.FormatFloat(fps, 'f', -1, 64),
-		"-framerate", strconv.FormatFloat(fps, 'f', -1, 64),
+		"-r", strconv.FormatFloat(frTarget, 'f', -1, 64),
+		"-framerate", strconv.FormatFloat(frTarget, 'f', -1, 64),
 		// "-pattern_type", "glob",
 		"-i", inputFolder+"/%d.jpg",
 		"-i", audioFile,
@@ -148,10 +148,14 @@ func convertImagesToMP4(inputFolder, audioFile, outputFile string, fps float64) 
 }
 
 func resizeTiny(inputFile, outputFile string, width, height int) error {
+	if frTarget == 0.0 {
+		frTarget = fps
+	}
 	cmd := exec.Command("ffmpeg",
 		"-i", inputFile,
 		"-vf", "unsharp=5:5:1.0:5:5:0.0,scale="+strconv.Itoa(width)+":"+strconv.Itoa(height),
 		"-sws_flags", "lanczos+accurate_rnd", // Use Lanczos resampling with accurate rounding
+		"-r", strconv.FormatFloat(frTarget, 'f', -1, 64),
 		outputFile,
 		"-y", // Overwrite output file without asking
 	)
