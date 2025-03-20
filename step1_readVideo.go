@@ -1,54 +1,62 @@
 package main
 
 import (
-	"github.com/AlexEidt/Vidio"
-	"github.com/AlexEidt/aio"
+	"fmt"
 	"image"
+	"os/exec"
 	"path/filepath"
 	"time"
-	"fmt"
+
+	vidio "github.com/AlexEidt/Vidio"
 )
 
 var (
-    fps             float64
+	fps float64
 )
 
 // ---------------- Step Function ----------------
 
 func initalResize() {
 	fmt.Printf("Initial resize to %dx%dpx\n", screenWidth, squareSize)
-    err := resizeTiny(inputVideo, filepath.Join(tempDirTinyVid,getBasenameWithoutExt(inputVideo)+".mp4"), screenWidth, squareSize)
-    if err != nil {
-        fmt.Println("Error:", err)
-    }
-    fmt.Println("Resize completed, Running algorithm...")
+	err := resizeTiny(inputVideo, filepath.Join(tempDirTinyVid, getBasenameWithoutExt(inputVideo)+".mp4"), screenWidth, squareSize)
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+	fmt.Println("Resize completed, Running algorithm...")
 }
 
 func readVideo() {
-	video, _ := vidio.NewVideo(filepath.Join(tempDirTinyVid,getBasenameWithoutExt(inputVideo)+".mp4"))
+	video, _ := vidio.NewVideo(filepath.Join(tempDirTinyVid, getBasenameWithoutExt(inputVideo)+".mp4"))
 
-    vbuffer := image.NewRGBA(image.Rect(0, 0, video.Width(), video.Height()))
+	vbuffer := image.NewRGBA(image.Rect(0, 0, video.Width(), video.Height()))
 	video.SetFrameBuffer(vbuffer.Pix)
 
-	audio, _ := aio.NewAudio(filepath.Join(tempDirTinyVid,getBasenameWithoutExt(inputVideo)+".mp4"), nil)
-	player, _ := aio.NewPlayer(audio.Channels(), audio.SampleRate(), audio.Format())
-	defer player.Close()
+	// audio, _ := aio.NewAudio(filepath.Join(tempDirTinyVid,getBasenameWithoutExt(inputVideo)+".mp4"), nil)
+	// player, _ := aio.NewPlayer(audio.Channels(), audio.SampleRate(), audio.Format())
+	// defer player.Close()
 
 	fps = video.FPS()
 	maxFrameDuration := time.Second / time.Duration(fps)
 
 	if realTime {
-		go func(){
-			for audio.Read() {
-				player.Play(audio.Buffer())
+		go func() {
+			// for audio.Read() {
+			// 	player.Play(audio.Buffer())
+			// }
+			cmd := exec.Command("ffplay", "-nodisp", "-vn", filepath.Join(tempDirTinyVid, getBasenameWithoutExt(inputVideo)+".mp4"))
+			if err := cmd.Start(); err != nil {
+				fmt.Println("Error starting ffplay:", err)
+				return
 			}
+			defer cmd.Cancel()
+			cmd.Wait()
 		}()
 	} else {
-		player.Close()
+		// player.Close()
 	}
 
-    for video.Read() {
-        startTime := time.Now()
+	for video.Read() {
+		startTime := time.Now()
 
 		if drawUI && !playOnlyMode {
 			inputFrameRW.Lock()
@@ -60,13 +68,13 @@ func readVideo() {
 		elapsedTime := time.Since(startTime)
 		remainingTime := maxFrameDuration - elapsedTime
 		if remainingTime > 0 && realTime {
-            // 2% speed up
+			// 2% speed up
 			time.Sleep(time.Duration(int64(float64(remainingTime) * 0.98)))
 		}
 
-    }
+	}
 
-    video.Close()
+	video.Close()
 }
 
 // ---------------- Helper Functions ----------------

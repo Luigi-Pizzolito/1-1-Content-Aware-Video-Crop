@@ -23,3 +23,4 @@ go.work
 # testing video folders
 vid
 out
+*.mp4
