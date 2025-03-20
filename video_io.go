@@ -151,6 +151,7 @@ func resizeTiny(inputFile, outputFile string, width, height int) error {
 	cmd := exec.Command("ffmpeg",
 		"-i", inputFile,
 		"-vf", "scale="+strconv.Itoa(width)+":"+strconv.Itoa(height),
+		"-sws_flags", "lanczos+accurate_rnd", // Use Lanczos resampling with accurate rounding
 		outputFile,
 		"-y", // Overwrite output file without asking
 	)
