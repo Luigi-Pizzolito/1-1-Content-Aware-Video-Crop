@@ -38,12 +38,13 @@ func readVideo() {
 	fps = video.FPS()
 	maxFrameDuration := time.Second / time.Duration(fps)
 
-	if realTime {
+	if realTime || playOnlyMode {
 		go func() {
 			// for audio.Read() {
 			// 	player.Play(audio.Buffer())
 			// }
-			cmd := exec.Command("ffplay", "-nodisp", "-vn", filepath.Join(tempDirTinyVid, getBasenameWithoutExt(inputVideo)+".mp4"))
+			fmt.Println("Playing audio in RT mode...")
+			cmd := exec.Command("ffplay", "-nodisp", "-vn", inputVideo)
 			if err := cmd.Start(); err != nil {
 				fmt.Println("Error starting ffplay:", err)
 				return
@@ -69,7 +70,7 @@ func readVideo() {
 		remainingTime := maxFrameDuration - elapsedTime
 		if remainingTime > 0 && realTime {
 			// 2% speed up
-			time.Sleep(time.Duration(int64(float64(remainingTime) * 0.98)))
+			time.Sleep(time.Duration(int64(float64(remainingTime) * 0.96)))
 		}
 
 	}

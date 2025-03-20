@@ -31,6 +31,9 @@ func setupUI() {
 		screenHeight = screenHeight * steps
 	} else {
 		screenWidth = screenHeight
+		if widthSize != 0 {
+			screenWidth = widthSize
+		}
 		ebiten.SetWindowFloating(true)
 		// ebiten.SetWindowDecorated(false)
 		// ebiten.SetFullscreen(true)
@@ -91,8 +94,11 @@ func (g *Game) Draw(screen *ebiten.Image) {
 		ebitenutil.DebugPrint(screen, fmt.Sprintf("FPS: %0.2f\nPan: %dpx\nZoom: %.2f%%\nSubj: %d\nProg: %.2f%%", ebiten.ActualFPS(), ppan, pzoom, subj, float64(float64(cframes)/float64(tframes))*100))
 	} else {
 		// Player-only mode
+		op5 := &ebiten.DrawImageOptions{}
+		// op5.GeoM.Scale(float64(screenWidth)/float64(inputFrame.Bounds().Dx()), float64(screenHeight)/float64(inputFrame.Bounds().Dy()))
+		op5.GeoM.Translate(float64((float64(screenWidth)-float64(inputFrame.Bounds().Dx()))/2), 0)
 		croppedFrameRW.Lock()
-		screen.DrawImage(ebiten.NewImageFromImage(croppedFrame), nil)
+		screen.DrawImage(ebiten.NewImageFromImage(croppedFrame), op5)
 		croppedFrameRW.Unlock()
 	}
 }
