@@ -150,7 +150,7 @@ func convertImagesToMP4(inputFolder, audioFile, outputFile string, fps float64) 
 func resizeTiny(inputFile, outputFile string, width, height int) error {
 	cmd := exec.Command("ffmpeg",
 		"-i", inputFile,
-		"-vf", "scale="+strconv.Itoa(width)+":"+strconv.Itoa(height),
+		"-vf", "unsharp=5:5:1.0:5:5:0.0,scale="+strconv.Itoa(width)+":"+strconv.Itoa(height),
 		"-sws_flags", "lanczos+accurate_rnd", // Use Lanczos resampling with accurate rounding
 		outputFile,
 		"-y", // Overwrite output file without asking
