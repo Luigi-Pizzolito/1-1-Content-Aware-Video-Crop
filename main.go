@@ -110,7 +110,7 @@ func parseFlags() {
 	}
 
 	// Print parsed flags
-	fmt.Println("1:1 Content-Aware Video Cropper V1.0")
+	fmt.Println("1:1 Content-Aware Video Cropper V1.1")
 	fmt.Println("Parameters:")
 	if *playOnlyModeF {
 		fmt.Println("\tMode: Player-Only")

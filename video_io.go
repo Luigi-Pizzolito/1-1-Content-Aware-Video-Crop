@@ -85,7 +85,9 @@ func convertImagesToMP4(inputFolder, audioFile, outputFile string, fps float64) 
 		"-q:v", "6",
 		// "-vf", "setsar=1,crop=aspect_ratio=1",//"cropdetect=limit=0:round=2:reset=0,scale="+strconv.Itoa(squareSize)+":"+strconv.Itoa(squareSize),
 		// "-aspect", "1:1",
-		"-c:a", "copy",
+		// "-c:a", "copy",
+		"-c:a", "pcm_s16le",
+		"-ar", "44100",
 		outputFile, "-y", // Offmpegverwrite output file without asking
 	)
 	fmt.Println(cmd.String())
@@ -148,9 +150,10 @@ func convertImagesToMP4(inputFolder, audioFile, outputFile string, fps float64) 
 }
 
 func resizeTiny(inputFile, outputFile string, width, height int) error {
-	if frTarget == 0.0 {
+	if frTarget == 0 {
 		frTarget = fps
 	}
+	fmt.Println(frTarget)
 	cmd := exec.Command("ffmpeg",
 		"-i", inputFile,
 		"-vf", "unsharp=5:5:1.0:5:5:0.0,scale="+strconv.Itoa(width)+":"+strconv.Itoa(height),
